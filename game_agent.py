@@ -36,10 +36,10 @@ def custom_score(game, player):
         The heuristic value of the current game state to the specified player.
     """
     if game.is_loser(player):
-        return float("-inf")
+        return float('-inf')
 
     if game.is_winner(player):
-        return float("inf")
+        return float('inf')
 
     own_moves = game.get_legal_moves()
     num_own_moves = len(own_moves)
@@ -73,8 +73,17 @@ def custom_score_2(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float('-inf')
+
+    if game.is_winner(player):
+        return float('inf')
+
+    x_pos, y_pos = game.get_player_location(player)
+    handicap = abs(game.width/2 - x_pos) + abs(game.height/2 - y_pos)
+    return float(len(game.get_legal_moves()) - handicap)
+
+
 
 
 def custom_score_3(game, player):
@@ -99,8 +108,20 @@ def custom_score_3(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float('-inf')
+
+    if game.is_winner(player):
+        return float('inf')
+
+    moves = game.get_legal_moves()
+    count = 0
+    for move in moves:
+        projected = game.forecast_move(move)
+        count += len(projected.get_legal_moves())
+
+    return float(count + len(moves))
+
 
 
 class IsolationPlayer:
@@ -262,8 +283,12 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
+        legal_moves = game.get_legal_moves()
+        if not legal_moves:
+            return -1, -1
+
         return max([(min_value(game.forecast_move(move), depth-1), move)
-                        for move in game.get_legal_moves()])[1]
+                        for move in legal_moves])[1]
 
 
 class AlphaBetaPlayer(IsolationPlayer):
@@ -311,8 +336,8 @@ class AlphaBetaPlayer(IsolationPlayer):
         """
         self.time_left = time_left
 
-        if len(game.get_blank_spaces()) == 49:
-            return 3,3
+        if game.get_blank_spaces() == game.width * game.height:
+            return game.width // 2, game.height // 2
 
         best_move = (-1, -1)
         depth = 1
@@ -445,10 +470,17 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         #max_value(game, depth, alpha, beta)
         #return self.moves[1][1]
+        best_move = -1, -1
         best = float("-inf")
         legal_moves = game.get_legal_moves()
         if not legal_moves:
             return -1, -1
+        if game.get_blank_spaces() == game.width * game.height -1:
+            opp_x, opp_y = game.get_player_location(game.get_opponent(self))
+            if (opp_x + opp_y) % 2 == 0:
+                legal_moves = [move for move in legal_moves if (move[0] + move[1]) % 2 == 1]
+            else:
+                legal_moves = [move for move in legal_moves if (move[0] + move[1]) % 2 == 0]
         for move in legal_moves:
             v = min_value(game.forecast_move(move), depth - 1, alpha, beta)
             # record.append((v, move))
