@@ -48,7 +48,7 @@ def custom_score(game, player):
     for move in own_moves:
         projected = game.forecast_move(move)
         next_level += len(projected.get_legal_moves())
-    return float((num_own_moves + next_level)/num_own_moves) - 2 * num_opp_moves
+    return float(num_own_moves + next_level - 2 * num_opp_moves)
 
 
 def custom_score_2(game, player):
@@ -114,13 +114,18 @@ def custom_score_3(game, player):
     if game.is_winner(player):
         return float('inf')
 
-    moves = game.get_legal_moves()
-    count = 0
-    for move in moves:
+    own_moves = game.get_legal_moves()
+    opp_moves = game.get_legal_moves(game.get_opponent(player))
+    num_own_moves = len(own_moves)
+    num_opp_moves = len(opp_moves)
+    next_level = 0
+    for move in own_moves:
         projected = game.forecast_move(move)
-        count += len(projected.get_legal_moves())
-
-    return float(count + len(moves))
+        num_own_moves += len(projected.get_legal_moves())
+    for move in opp_moves:
+        projected = game.forecast_move(move)
+        num_opp_moves += len(projected.get_legal_moves())
+    return float(num_own_moves - 2 * num_opp_moves)
 
 
 
