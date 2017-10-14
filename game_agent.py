@@ -418,22 +418,17 @@ class AlphaBetaPlayer(IsolationPlayer):
             if depth == 0 or terminal_test(game):
                 return self.score(game, self)
 
-        #legal_moves = self.moves.get(depth, [])
-        #if not len(legal_moves):
             legal_moves = game.get_legal_moves()
             if not legal_moves:
                 return -1, -1
 
             best = float('inf')
-            #record = []
             for move in legal_moves:
                 v = max_value(game.forecast_move(move), depth-1, alpha, beta)
-                #record.append((v, move))
                 best = min(best, v)
                 if best <= alpha:
                     return best
                 beta = min(best, beta)
-            #self.moves[depth] = [m for v,m in sorted(record, reverse=True)]
             return best
 
         def max_value(game, depth, alpha, beta):
@@ -447,29 +442,22 @@ class AlphaBetaPlayer(IsolationPlayer):
             if depth == 0 or terminal_test(game):
                 return self.score(game, self)
 
-        #legal_moves = self.moves.get(depth, [])
-        #if not len(legal_moves):
             legal_moves = game.get_legal_moves()
             if not legal_moves:
                 return -1, -1
 
             best = float('-inf')
-            #record = []
             for move in legal_moves:
                 v = min_value(game.forecast_move(move), depth - 1, alpha, beta)
-                #record.append((v, move))
                 best = max(best, v)
                 if best >= beta:
                     return best
                 alpha = max(best, alpha)
-            #self.moves[depth] = [m for v, m in sorted(record, reverse=True)]
             return best
 
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        #max_value(game, depth, alpha, beta)
-        #return self.moves[1][1]
         best_move = -1, -1
         best = float("-inf")
         legal_moves = game.get_legal_moves()
@@ -483,10 +471,8 @@ class AlphaBetaPlayer(IsolationPlayer):
                 legal_moves = [move for move in legal_moves if (move[0] + move[1]) % 2 == 0]
         for move in legal_moves:
             v = min_value(game.forecast_move(move), depth - 1, alpha, beta)
-            # record.append((v, move))
             if v > best:
                 best = v
                 best_move = move
                 alpha = max(best, alpha)
-            # self.moves[depth] = [m for v, m in sorted(record, reverse=True)]
         return best_move
