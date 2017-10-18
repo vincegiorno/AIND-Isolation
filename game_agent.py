@@ -41,7 +41,7 @@ def custom_score(game, player):
 
     x_pos, y_pos = game.get_player_location(player)
     handicap = abs(game.width/2 - x_pos) + abs(game.height/2 - y_pos)
-    return float(len(game.get_legal_moves()) - 2 * handicap - 2 * len(game.get_legal_moves(game.get_opponent(player))))
+    return float(len(game.get_legal_moves()) - handicap - 2 * len(game.get_legal_moves(game.get_opponent(player))))
 
 
 def custom_score_2(game, player):
