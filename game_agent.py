@@ -11,7 +11,7 @@ class SearchTimeout(Exception):
     pass
 
 
-def custom_score(game, player):
+def custom_score_2(game, player):
     """Calculate the heuristic value of a game state from the point of view
     of the given player.
 
@@ -48,10 +48,10 @@ def custom_score(game, player):
     for move in own_moves:
         projected = game.forecast_move(move)
         next_level += len(projected.get_legal_moves())
-    return float(num_own_moves + next_level - 2 * num_opp_moves)
+    return float((num_own_moves + next_level) / num_own_moves - 2 * num_opp_moves)
 
 
-def custom_score_2(game, player):
+def custom_score(game, player):
     """Calculate the heuristic value of a game state from the point of view
     of the given player.
 
@@ -81,7 +81,7 @@ def custom_score_2(game, player):
 
     x_pos, y_pos = game.get_player_location(player)
     handicap = abs(game.width/2 - x_pos) + abs(game.height/2 - y_pos)
-    return float(len(game.get_legal_moves()) - handicap)
+    return float(len(game.get_legal_moves()) - 2 * handicap - 2 * len(game.get_legal_moves(game.get_opponent(player))))
 
 
 
@@ -114,18 +114,16 @@ def custom_score_3(game, player):
     if game.is_winner(player):
         return float('inf')
 
+    x_pos, y_pos = game.get_player_location(player)
+    handicap = abs(game.width / 2 - x_pos) + abs(game.height / 2 - y_pos)
     own_moves = game.get_legal_moves()
-    opp_moves = game.get_legal_moves(game.get_opponent(player))
     num_own_moves = len(own_moves)
-    num_opp_moves = len(opp_moves)
+    num_opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
     next_level = 0
     for move in own_moves:
         projected = game.forecast_move(move)
-        num_own_moves += len(projected.get_legal_moves())
-    for move in opp_moves:
-        projected = game.forecast_move(move)
-        num_opp_moves += len(projected.get_legal_moves())
-    return float(num_own_moves - 2 * num_opp_moves)
+        next_level += len(projected.get_legal_moves())
+    return float((num_own_moves + next_level) / num_own_moves - 2 * num_opp_moves - handicap)
 
 
 
