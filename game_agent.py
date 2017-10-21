@@ -40,8 +40,8 @@ def custom_score(game, player):
         return float('inf')
 
     x_pos, y_pos = game.get_player_location(player)
-    handicap = abs(game.width/2 - x_pos) + abs(game.height/2 - y_pos)
-    return float(len(game.get_legal_moves()) - handicap - 2 * len(game.get_legal_moves(game.get_opponent(player))))
+    penalty = abs(game.width/2 - x_pos) + abs(game.height/2 - y_pos)
+    return float(len(game.get_legal_moves()) - penalty - 2 * len(game.get_legal_moves(game.get_opponent(player))))
 
 
 def custom_score_2(game, player):
@@ -113,7 +113,7 @@ def custom_score_3(game, player):
         return float('inf')
 
     x_pos, y_pos = game.get_player_location(player)
-    handicap = abs(game.width / 2 - x_pos) + abs(game.height / 2 - y_pos)
+    penalty = abs(game.width / 2 - x_pos) + abs(game.height / 2 - y_pos)
     own_moves = game.get_legal_moves()
     num_own_moves = len(own_moves)
     num_opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
@@ -121,7 +121,7 @@ def custom_score_3(game, player):
     for move in own_moves:
         projected = game.forecast_move(move)
         next_level += len(projected.get_legal_moves())
-    return float((num_own_moves + next_level) / num_own_moves - 2 * num_opp_moves - handicap)
+    return float((num_own_moves + next_level) / num_own_moves - 2 * num_opp_moves - penalty)
 
 
 class IsolationPlayer:
