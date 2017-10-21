@@ -40,7 +40,9 @@ def custom_score(game, player):
         return float('inf')
 
     x_pos, y_pos = game.get_player_location(player)
+    # Apply a penalty that increases the farther a move takes the player from the center of the board
     penalty = abs(game.width/2 - x_pos) + abs(game.height/2 - y_pos)
+    # Apply a heavier penalty to moves that leave the opponent with relatively more moves
     return float(len(game.get_legal_moves()) - penalty - 2 * len(game.get_legal_moves(game.get_opponent(player))))
 
 
@@ -78,6 +80,7 @@ def custom_score_2(game, player):
     num_own_moves = len(own_moves)
     num_opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
     next_level = 0
+    # Add in all the next moves that the move will produce (neglecting the opponent's next move)
     for move in own_moves:
         projected = game.forecast_move(move)
         next_level += len(projected.get_legal_moves())
@@ -112,6 +115,7 @@ def custom_score_3(game, player):
     if game.is_winner(player):
         return float('inf')
 
+    # Combine the 2-move lookahead with the penalty for moving farther from the center
     x_pos, y_pos = game.get_player_location(player)
     penalty = abs(game.width / 2 - x_pos) + abs(game.height / 2 - y_pos)
     own_moves = game.get_legal_moves()
@@ -287,6 +291,7 @@ class MinimaxPlayer(IsolationPlayer):
         if not legal_moves:
             return -1, -1
 
+        # Use max() to obtain the (score, move) tuple with the highest score, and then return the move
         return max([(min_value(game.forecast_move(move), depth-1), move)
                         for move in legal_moves])[1]
 
@@ -336,6 +341,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         """
         self.time_left = time_left
 
+        # Take the (or a) center square if player moves first
         if game.get_blank_spaces() == game.width * game.height:
             return game.width // 2, game.height // 2
 
@@ -347,6 +353,7 @@ class AlphaBetaPlayer(IsolationPlayer):
                 # The try/except block will automatically catch the exception
                 # raised when the timer is about to expire.
                 best_move = self.alphabeta(game, depth)
+                # Keep iterating one level deeper until the SearchTimeout is raised
                 depth +=1
 
             except SearchTimeout:
@@ -463,6 +470,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         legal_moves = game.get_legal_moves()
         if not legal_moves:
             return -1, -1
+        # Based on a forum post I read but cannot find again to attribute, pick an opposite-colored cell on move 2)
         if game.get_blank_spaces() == game.width * game.height -1:
             opp_x, opp_y = game.get_player_location(game.get_opponent(self))
             if (opp_x + opp_y) % 2 == 0:
@@ -474,5 +482,6 @@ class AlphaBetaPlayer(IsolationPlayer):
             if v > best:
                 best = v
                 best_move = move
+                # Root has no min level above it, so can't prune. Only need to update alpha for min level below.
                 alpha = max(best, alpha)
         return best_move
